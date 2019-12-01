@@ -311,7 +311,7 @@ def agregar_diferencia_metros_totales_y_cubiertos(df_train, df_test):
     df_test['diff_metros_cubiertos_y_totales'] = abs(df_test['metrostotales'] - df_test['metroscubiertos'])
     return df_train, df_test
 
-def preprocessing(guardar_csv=False, cols_eliminar=['fecha', 'id', 'titulo', 'descripcion', 'direccion',\
+def preprocessing(guardar_csv=False, procesar_nulos=True, cols_eliminar=['fecha', 'id', 'titulo', 'descripcion', 'direccion',\
                           'lat', 'lng','posicion','provincia', 'ciudad','gimnasio','usosmultiples',\
                           'escuelascercanas','centroscomercialescercanos',\
                           'idzona_promedio_m2', 'ciudad_promedio_m2',\
@@ -339,21 +339,23 @@ def preprocessing(guardar_csv=False, cols_eliminar=['fecha', 'id', 'titulo', 'de
     
     # Imputing de variables categoricas y numericas
     
-    num_cols = ['antiguedad', 'habitaciones', 'banos', 'garages']
-    df_train, df_test = num_imputer_columnas(df_train, df_test, num_cols)
-    
-    cat_cols = ['ciudad', 'tipodepropiedad']
-    df_train, df_test = cat_imputer_columnas(df_train, df_test, cat_cols)
+    if procesar_nulos:
+        num_cols = ['antiguedad', 'habitaciones', 'banos', 'garages']
+        df_train, df_test = num_imputer_columnas(df_train, df_test, num_cols)
+
+        cat_cols = ['ciudad', 'tipodepropiedad']
+        df_train, df_test = cat_imputer_columnas(df_train, df_test, cat_cols)
     
     # Nulos en id_zona
     
-    df_train.idzona.fillna(inplace=True, value=-1)
-    df_test.idzona.fillna(inplace=True, value=-1)
+    if procesar_nulos:
+        df_train.idzona.fillna(inplace=True, value=-1)
+        df_test.idzona.fillna(inplace=True, value=-1)
     
     # Latitud y longitud
     
-    df_train, df_test = procesar_nulos_lat_lon(df_train, df_test)
-    
+    if procesar_nulos:
+        df_train, df_test = procesar_nulos_lat_lon(df_train, df_test)
     ## Agregamos precio por m2 en train
     
     df_train['precioporm2'] = df_train['precio'] / df_train['metrostotales']
